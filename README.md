@@ -4,9 +4,10 @@ Benchmark code to compare popular CPU and GPU computing libraries on numerical o
 
 ## Dependencies
 
-- OpenCV
-- Eigen
-- ArrayFire
+- CMake (version 3.0 and above). https://cmake.org
+- CImg (CeCILL-C License, LGPL-like). http://cimg.eu
+- Eigen (MPL2 License). http://eigen.tuxfamily.org
+- ArrayFire (BSD 3-Clause License). http://arrayfire.com
 
 ## Data
 
