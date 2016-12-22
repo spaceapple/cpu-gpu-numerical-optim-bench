@@ -29,7 +29,7 @@ Optionally, you can modify the path where the libraries are be looked for.
 Simply add one or more of the following command line arguments to cmake:
 
     -DEIGEN3_INCLUDE_DIR="path to my eigen3 lib folder"
-    -DEIGEN3_INCLUDE_DIR="path to my Cimg lib folder"
+    -DCIMG_INCLUDE_DIR="path to my Cimg lib folder"
     -DARRAYFIRE_INCLUDE_DIR="path to my ArrayFire lib folder"
 
 or edit the corresponding field in cmake's GUI tool.
