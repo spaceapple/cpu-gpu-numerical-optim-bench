@@ -38,8 +38,8 @@ else()
 endif()
 
 # find packages
-set(EIGEN3_INCLUDE_DIR mylibsfolder/Eigen-3.2.10 CACHE PATH "path to Eigen3")
-set(CIMG_INCLUDE_DIR mylibsfolder/CImg CACHE PATH "path to CImg")
+set(EIGEN3_INCLUDE_DIR libs/eigen CACHE PATH "path to Eigen3")
+set(CIMG_INCLUDE_DIR libs/CImg CACHE PATH "path to CImg")
 
 set(appTarget_src
     src/dense_im_reg_cpu_bench.cpp
