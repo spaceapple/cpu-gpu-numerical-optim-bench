@@ -41,9 +41,9 @@ else()
 endif()
 
 # find packages
-set(EIGEN3_INCLUDE_DIR libs/eigen CACHE PATH "path to Eigen3")
-set(CIMG_INCLUDE_DIR libs/CImg CACHE PATH "path to CImg")
-set(ARRAYFIRE_INCLUDE_DIR libs/ArrayFire CACHE PATH "path to ArrayFire")
+set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/libs/eigen CACHE PATH "path to Eigen3")
+set(CIMG_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/libs/CImg CACHE PATH "path to CImg")
+set(ARRAYFIRE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/libs/ArrayFire CACHE PATH "path to ArrayFire")
 
 
 add_subdirectory(dense_im_registration/CPU)
