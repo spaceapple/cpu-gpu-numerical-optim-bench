@@ -22,8 +22,15 @@ set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_
 # link_directories(
 #     )
 #
-# target_link_libraries(${APP_NAME}
-# )
+
+if(MINGW OR UNIX)
+    target_link_libraries(${APP_NAME}
+        m
+        pthread
+        X11
+    )
+endif()
+
 
 
 
