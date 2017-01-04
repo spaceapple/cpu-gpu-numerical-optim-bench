@@ -17,6 +17,8 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
+set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
 # link_directories(
 #     )
 #
