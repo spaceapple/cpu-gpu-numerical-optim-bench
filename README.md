@@ -1,6 +1,7 @@
 # CPU GPU Numerical Optimization Benchmark
 
-Benchmark code to compare popular CPU and GPU computing libraries on numerical optimization problems.
+Benchmark code to compare popular CPU and GPU computing libraries on numerical
+optimization problems.
 
 ## Dependencies
 
@@ -46,5 +47,9 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 Vol. 32, Nr. 5, pp. 815 - 830, May 2010
 URL: http://cvlab.epfl.ch/software/daisy
 
+### Misc
+
+The code uses C++11 construct. You would therefore require a C++11 compliant
+compiler to compile it.
 
 

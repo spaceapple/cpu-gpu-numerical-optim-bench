@@ -24,7 +24,7 @@ elseif(MINGW OR UNIX)
     set(DXYZ_RELWITHDEBINFO_OPTIM_FLAGS "-O2 -ggdb -msse2 -fopenmp \
     -fno-omit-frame-pointer")
     set(DXYZ_DEBUG_OPTIM_FLAGS "-O0 -ggdb")
-    set(DXYZ_COMPILE_FLAGS "-Werror -Wall -Wno-sign-compare \
+    set(DXYZ_COMPILE_FLAGS "-std=c++11 -Werror -Wall -Wno-sign-compare \
     -Wno-unused-local-typedefs -Wno-unknown-pragmas -fvisibility=hidden \
     -fvisibility-inlines-hidden -Wno-unknown-warning-option")
     set(CMAKE_CXX_FLAGS_RELEASE ${DXYZ_RELEASE_OPTIM_FLAGS} CACHE STRING
