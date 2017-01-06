@@ -79,11 +79,9 @@ int main(int argc, char ** argv)
             ref_im_gray = ref_im_asis;
             ref_im_colorDisp.assign(
                     ref_im_gray.width(), ref_im_gray.height(), 1, 3);
-            std::cerr << "debug: "<< ref_im_colorDisp.spectrum() << "\n";
             ref_im_colorDisp.draw_image(0, 0, 0, 0, ref_im_gray);
             ref_im_colorDisp.draw_image(0, 0, 0, 1, ref_im_gray);
             ref_im_colorDisp.draw_image(0, 0, 0, 2, ref_im_gray);
-            std::cerr << "debug: "<< ref_im_colorDisp.spectrum() << "\n";
             // ref_im_colorDisp.YCbCrtoRGB();
             break;
         case 3:
@@ -133,8 +131,7 @@ int main(int argc, char ** argv)
             ref_im_init_info_path,
             reginit_pts);
     if (curr_errCode != Common::NoError) {
-        std::cerr << "Error parsing reg im init info (error " <<
-            curr_errCode << ")." << ".\n";
+        std::cerr << "Error parsing reg im init info (error " << curr_errCode << ")." << ".\n";
         exit(-1);
     }
     if (BEVERBOSE) {
@@ -145,17 +142,40 @@ int main(int argc, char ** argv)
         std::cout << "\n";
     }
 
+    const uint32_t template_width = 200;
+    const uint32_t template_height = 300;
+    const uint32_t nb_res_levels = 3;
+    const FLOATPREC lvl_resz_ratio = 0.5;
+
+    curr_errCode = im_reg_solver.init(
+            template_width,
+            template_height,
+            nb_res_levels,
+            lvl_resz_ratio);
+    if (curr_errCode != Common::NoError) {
+        std::cerr << "Error in solver initialization (error " << curr_errCode << ")." << ".\n";
+        exit(-1);
+    }
+
+    curr_errCode = im_reg_solver.set_template(
+            ref_im_gray,
+            annot_pts);
+    if (curr_errCode != Common::NoError) {
+        std::cerr << "Error setting template (error " << curr_errCode << ")." << ".\n";
+        exit(-1);
+    }
+
+    curr_errCode = im_reg_solver.register_image(
+            reg_im_gray,
+            reginit_pts);
+    if (curr_errCode != Common::NoError) {
+        std::cerr << "Error in image registration (error " << curr_errCode << ")." << ".\n";
+        exit(-1);
+    }
 
 
 
-    im_reg_solver.init();
 
-
-
-
-
-
-    std::cerr << "debug: "<< ref_im_colorDisp.spectrum() << "\n";
 
     // overlay annotation duads on display images
     const uint8_t ref_dot_draw_color[] = { 20, 255, 20 };
