@@ -36,6 +36,8 @@ template <typename FloatPrec>
 struct DenseImageRegistrationSolver
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+public:
     DenseImageRegistrationSolver() {}
     ~DenseImageRegistrationSolver() {}
 public:
@@ -48,27 +50,7 @@ public:
             const uint32_t  template_width,
             const uint32_t  template_height,
             const uint32_t  nb_levels,
-            const FloatPrec lvl_resz_ratio)
-    {
-
-        // compute resolution pyramid templates resolutions
-        m_nb_levels = nb_levels;
-        m_lvl_resz_ratio = lvl_resz_ratio;
-        m_lvl_imdims.resize(nb_levels);
-
-        float this_lvl_ratio = 1.0;
-        for (uint32_t i_lvl = 0; i_lvl<nb_levels; ++i_lvl) {
-            // warning: silent floor() due to float->int casting
-            const uint32_t lvl_template_width = template_width * this_lvl_ratio;
-            const uint32_t lvl_template_height = template_width * this_lvl_ratio;
-            m_lvl_imdims[i_lvl] = std::make_pair(
-                    lvl_template_width, lvl_template_height);
-
-            this_lvl_ratio *= lvl_resz_ratio;
-        }
-
-        return Common::NoError;
-    }
+            const FloatPrec lvl_resz_ratio);
 
     /*
     * record the template to be registered in images
@@ -76,12 +58,7 @@ public:
     Common::ErrCode
     set_template(
             const cimg_library::CImg<unsigned char> & i_ref_image,
-            std::vector<FloatPrec> &                  i_annot_pts)
-    {
-        m_ref_imdim = std::make_pair(i_ref_image.width(), i_ref_image.height());
-
-        return Common::NoError;
-    }
+            std::vector<FloatPrec> &                  i_annot_pts);
 
     /*
     * register the recorded template (set with 'set_template' in the input
@@ -90,22 +67,25 @@ public:
     Common::ErrCode
     register_image(
             const cimg_library::CImg<unsigned char> & i_reg_image,
-            std::vector<FloatPrec> &                  i_reginit_pts)
-    {
-        return Common::NoError;
-    }
-private: // typedefs
+            std::vector<FloatPrec> &                  i_reginit_pts);
+
+public: // public typedefs
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
             MatrixNN;
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 4, Eigen::RowMajor>
+            MatrixN4;
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 6, Eigen::RowMajor>
             MatrixN6;
     typedef Eigen::Matrix<FloatPrec, 1, Eigen::Dynamic, Eigen::RowMajor>
             RowVecN;
     typedef Eigen::Matrix<FloatPrec, 1, 6, Eigen::RowMajor>
             RowVec6;
+private: // private typedefs
     typedef std::pair<uint32_t, uint32_t>                   ImDim;
     typedef std::vector<ImDim>                              LvlList_ImDim;
     typedef std::vector<RowVecN>                            LvlList_VecN;
+    typedef std::vector<std::vector<FloatPrec> >            LvlList_StdN4;
+    typedef std::vector<MatrixN4>                           LvlList_MatN4;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
 private:
     uint32_t       m_nb_levels = 3;
@@ -113,6 +93,8 @@ private:
     ImDim          m_ref_imdim;
     LvlList_ImDim  m_lvl_imdims;
     LvlList_VecN   m_lvl_templates;
+    LvlList_StdN4  m_lvl_Ws;
+    LvlList_MatN4  m_lvl_Ws_eigen;
     LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
 private:
     // The following makes the copy contructor and the assignment operator
@@ -121,6 +103,7 @@ private:
     DenseImageRegistrationSolver & operator = (DenseImageRegistrationSolver const &);
 };
 
+#include "dense_im_reg_cpu.inl.hpp"
 
 #endif // #ifndef _DENSE_IM_REG_CPU_HPP
 
