@@ -9,6 +9,8 @@
 #ifndef _IM_PROCESSING_UTILS_HPP
 #define _IM_PROCESSING_UTILS_HPP
 
+#include <CImg.h>
+
 #include "errCodes.h"
 
 #define MAX_TEMPLATE_DIMENSION 4000
@@ -114,6 +116,30 @@ apply_quad_warping(
     return NoError;
 }
 
+template <typename FloatPrec>
+FloatPrec
+bilinear_pix_interp(
+        const cimg_library::CImg<FloatPrec> & image,
+        FloatPrec                             x,
+        FloatPrec                             y)
+{
+    const uint32_t x0 = (uint32_t) std::floor(x);
+    const uint32_t x1 = x0 + 1;
+    const uint32_t y0 = (uint32_t) std::floor(y);
+    const uint32_t y1 = y0 + 1;
+
+    const FloatPrec a = image(x0, y0);
+    const FloatPrec b = image(x1, y0);
+    const FloatPrec c = image(x0, y1);
+    const FloatPrec d = image(x1, y1);
+
+    const FloatPrec wa = (x1-x)*(y1-y);
+    const FloatPrec wb = (x-x0)*(y1-y);
+    const FloatPrec wc = (x1-x)*(y-y0);
+    const FloatPrec wd = (x-x0)*(y-y0);
+
+    return a*wa + b*wb + c*wc + d*wd;
+}
 
 
 } // end namespace Common

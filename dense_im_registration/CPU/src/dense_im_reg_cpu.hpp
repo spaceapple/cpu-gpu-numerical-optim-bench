@@ -72,6 +72,8 @@ public:
 public: // public typedefs
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
             MatrixNN;
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 2, Eigen::RowMajor>
+            MatrixN2;
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 4, Eigen::RowMajor>
             MatrixN4;
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 6, Eigen::RowMajor>
@@ -80,21 +82,27 @@ public: // public typedefs
             RowVecN;
     typedef Eigen::Matrix<FloatPrec, 1, 6, Eigen::RowMajor>
             RowVec6;
+    typedef Eigen::Matrix<FloatPrec, 4, 2, Eigen::RowMajor>
+            Matrix42;
 private: // private typedefs
     typedef std::pair<uint32_t, uint32_t>                   ImDim;
     typedef std::vector<ImDim>                              LvlList_ImDim;
+    typedef std::vector<FloatPrec>                          LvlList_Ratio;
     typedef std::vector<RowVecN>                            LvlList_VecN;
     typedef std::vector<std::vector<FloatPrec> >            LvlList_StdN4;
     typedef std::vector<MatrixN4>                           LvlList_MatN4;
+    typedef std::vector<MatrixN2>                           LvlList_MatN2;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
 private:
     uint32_t       m_nb_levels = 3;
     FloatPrec      m_lvl_resz_ratio = 0.5;
     ImDim          m_ref_imdim;
+    LvlList_Ratio  m_lvl_abs_resz_ratio;
     LvlList_ImDim  m_lvl_imdims;
     LvlList_VecN   m_lvl_templates;
     LvlList_StdN4  m_lvl_Ws;
     LvlList_MatN4  m_lvl_Ws_eigen;
+    LvlList_MatN2  m_lvl_gridpts_eigen;
     LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
 private:
     // The following makes the copy contructor and the assignment operator
