@@ -31,6 +31,8 @@
 
 #include "errCodes.h"
 
+#include "im_processing_utils.hpp"
+
 
 template <typename FloatPrec>
 struct DenseImageRegistrationSolver
@@ -54,11 +56,14 @@ public:
 
     /*
     * record the template to be registered in images
+    * i_normz_factor is a normalization factor to map image values to a favorable
+    * floating point range (typically [0., 1.]
     */
     Common::ErrCode
     set_template(
             const cimg_library::CImg<unsigned char> & i_ref_image,
-            std::vector<FloatPrec> &                  i_annot_pts);
+            std::vector<FloatPrec> &                  i_annot_pts,
+            FloatPrec                                 i_normz_factor = 1./255.);
 
     /*
     * register the recorded template (set with 'set_template' in the input
@@ -67,7 +72,20 @@ public:
     Common::ErrCode
     register_image(
             const cimg_library::CImg<unsigned char> & i_reg_image,
-            std::vector<FloatPrec> &                  i_reginit_pts);
+            const std::vector<FloatPrec> &            i_reginit_pts,
+            std::vector<FloatPrec> &                  o_reg_pts);
+
+    /*
+    * get the level templates as images (mainly for debug purposes)
+    */
+    Common::ErrCode
+    get_template_image(
+            std::vector<cimg_library::CImg<unsigned char> > & o_lvl_templims) const;
+
+    /*
+    * get nb levels
+    */
+    inline uint32_t nb_levels() const {return m_nb_levels;}
 
 public: // public typedefs
     typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
@@ -85,7 +103,7 @@ public: // public typedefs
     typedef Eigen::Matrix<FloatPrec, 4, 2, Eigen::RowMajor>
             Matrix42;
 private: // private typedefs
-    typedef std::pair<uint32_t, uint32_t>                   ImDim;
+    typedef Common::ImDim<uint32_t>                         ImDim;
     typedef std::vector<ImDim>                              LvlList_ImDim;
     typedef std::vector<FloatPrec>                          LvlList_Ratio;
     typedef std::vector<RowVecN>                            LvlList_VecN;
@@ -94,8 +112,11 @@ private: // private typedefs
     typedef std::vector<MatrixN2>                           LvlList_MatN2;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
 private:
+    bool           m_is_init = false;
+    bool           m_template_is_set = false;
     uint32_t       m_nb_levels = 3;
     FloatPrec      m_lvl_resz_ratio = 0.5;
+    FloatPrec      m_normz_factor = 1./255.;
     ImDim          m_ref_imdim;
     LvlList_Ratio  m_lvl_abs_resz_ratio;
     LvlList_ImDim  m_lvl_imdims;

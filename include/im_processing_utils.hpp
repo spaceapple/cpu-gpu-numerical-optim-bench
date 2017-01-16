@@ -18,6 +18,34 @@
 namespace Common
 {
 
+
+/*
+* Simple struct to represent image sizes
+*/
+template <typename IntPrec>
+struct ImDim
+{
+public:
+    ImDim() {}
+    ImDim(IntPrec i_width, IntPrec i_height) : 
+        m_width(i_width),
+        m_height(i_height)
+    {}
+public:
+    void
+    set_dim(IntPrec i_width, IntPrec i_height) {
+        m_width = i_width;
+        m_height = i_height;
+    }
+public:
+    inline IntPrec width() const { return m_width; }
+    inline IntPrec height() const { return m_height; }
+private:
+    IntPrec m_width = 0;
+    IntPrec m_height = 0;
+};
+
+
 /*
 * Generate coeeficient to warp pixel to a quad grid (the template)
 * What is generated here are the coefficients of a Nx4 matrix W (N: number of
@@ -48,7 +76,7 @@ generate_quad_warping_coeffs(
     const FloatPrec inv_x_sz = 1. / (FloatPrec)(template_width);
     const FloatPrec inv_y_sz = 1. / (FloatPrec)(template_height);
     const FloatPrec xA = 0.;
-    // const FloatPrec yA = 0.;
+    const FloatPrec yA = 0.;
     const FloatPrec xB = (FloatPrec)(template_width - 1);
     // const FloatPrec yB = 0.;
     // const FloatPrec xC = (FloatPrec)(template_width - 1);
@@ -58,7 +86,7 @@ generate_quad_warping_coeffs(
     for(uint32_t i_y = 0; i_y<template_height; ++i_y) {
         const FloatPrec yP = (FloatPrec)(i_y);
         const FloatPrec yD_yP = yD - yP;
-        const FloatPrec yP_yA = yD - yP;
+        const FloatPrec yP_yA = yP - yA;
 
         for(uint32_t i_x = 0; i_x<template_width; ++i_x) {
             const uint32_t pixel_ind = i_y*template_width + i_x;
@@ -68,10 +96,10 @@ generate_quad_warping_coeffs(
             const FloatPrec xB_xP = xB - xP;
             const FloatPrec xP_xA = xP - xA;
 
-            o_W[w_write_index + 0] = (yD_yP/inv_y_sz) * (xB_xP/inv_x_sz);
-            o_W[w_write_index + 1] = (yD_yP/inv_y_sz) * (xP_xA/inv_x_sz);
-            o_W[w_write_index + 2] = (yP_yA/inv_y_sz) * (xB_xP/inv_x_sz);
-            o_W[w_write_index + 3] = (yP_yA/inv_y_sz) * (xP_xA/inv_x_sz);
+            o_W[w_write_index + 0] = (yD_yP*inv_y_sz) * (xB_xP*inv_x_sz);
+            o_W[w_write_index + 1] = (yD_yP*inv_y_sz) * (xP_xA*inv_x_sz);
+            o_W[w_write_index + 2] = (yP_yA*inv_y_sz) * (xB_xP*inv_x_sz);
+            o_W[w_write_index + 3] = (yP_yA*inv_y_sz) * (xP_xA*inv_x_sz);
         }
     }
 

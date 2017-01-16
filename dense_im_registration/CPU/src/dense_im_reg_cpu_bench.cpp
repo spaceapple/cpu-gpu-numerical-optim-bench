@@ -165,9 +165,20 @@ int main(int argc, char ** argv)
         exit(-1);
     }
 
+    // visually check registered templates:
+    std::vector<cimg_library::CImg<unsigned char> > reg_template_ims_disp;
+    curr_errCode = im_reg_solver.get_template_image(reg_template_ims_disp);
+    if (curr_errCode != Common::NoError) {
+        std::cerr << "Error recovering template images (error " << curr_errCode << ")." << ".\n";
+        exit(-1);
+    }
+
+
+    std::vector<FLOATPREC> reg_pts;
     curr_errCode = im_reg_solver.register_image(
             reg_im_gray,
-            reginit_pts);
+            reginit_pts,
+            reg_pts);
     if (curr_errCode != Common::NoError) {
         std::cerr << "Error in image registration (error " << curr_errCode << ")." << ".\n";
         exit(-1);
@@ -201,6 +212,11 @@ int main(int argc, char ** argv)
 
     cimg_library::CImgDisplay ref_im_cimgDisp(ref_im_colorDisp,"reference image");
     cimg_library::CImgDisplay reg_im_cimgDisp(reg_im_colorDisp,"registration image");
+    std::vector<cimg_library::CImgDisplay> reg_template_cimgDisp;
+    for (uint32_t i_lvl=0; i_lvl<im_reg_solver.nb_levels(); ++i_lvl) {
+        reg_template_cimgDisp.push_back(
+                cimg_library::CImgDisplay(reg_template_ims_disp[i_lvl]));
+    }
 
     while (!ref_im_cimgDisp.is_closed() || !reg_im_cimgDisp.is_closed()) {
         cimg_library::cimg::sleep(10);

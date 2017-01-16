@@ -23,6 +23,8 @@ typedef enum ErrCode_t
     IOCantOpenFile               = 2,
     AnnotInfoParsingError        = 3,
     InvalidTemplateDimension     = 4,
+    SolverNotInitialized         = 5,
+    TemplateNotSet               = 6,
 
 } ErrCode;
 
