@@ -73,8 +73,8 @@ generate_quad_warping_coeffs(
 
     // pixels in the template have coordinates X = [0 ... template_width-1],
     // Y = [0 ... template_height-1]
-    const FloatPrec inv_x_sz = 1. / (FloatPrec)(template_width);
-    const FloatPrec inv_y_sz = 1. / (FloatPrec)(template_height);
+    const FloatPrec inv_x_sz = 1. / (FloatPrec)(template_width-1);
+    const FloatPrec inv_y_sz = 1. / (FloatPrec)(template_height-1);
     const FloatPrec xA = 0.;
     const FloatPrec yA = 0.;
     const FloatPrec xB = (FloatPrec)(template_width - 1);
@@ -98,8 +98,8 @@ generate_quad_warping_coeffs(
 
             o_W[w_write_index + 0] = (yD_yP*inv_y_sz) * (xB_xP*inv_x_sz);
             o_W[w_write_index + 1] = (yD_yP*inv_y_sz) * (xP_xA*inv_x_sz);
-            o_W[w_write_index + 2] = (yP_yA*inv_y_sz) * (xB_xP*inv_x_sz);
-            o_W[w_write_index + 3] = (yP_yA*inv_y_sz) * (xP_xA*inv_x_sz);
+            o_W[w_write_index + 2] = (yP_yA*inv_y_sz) * (xP_xA*inv_x_sz);
+            o_W[w_write_index + 3] = (yP_yA*inv_y_sz) * (xB_xP*inv_x_sz);
         }
     }
 

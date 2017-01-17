@@ -111,6 +111,7 @@ private: // private typedefs
     typedef std::vector<MatrixN4>                           LvlList_MatN4;
     typedef std::vector<MatrixN2>                           LvlList_MatN2;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
+// public:
 private:
     bool           m_is_init = false;
     bool           m_template_is_set = false;
@@ -119,7 +120,7 @@ private:
     FloatPrec      m_normz_factor = 1./255.;
     ImDim          m_ref_imdim;
     LvlList_Ratio  m_lvl_abs_resz_ratio;
-    LvlList_ImDim  m_lvl_imdims;
+    LvlList_ImDim  m_lvl_templdims;
     LvlList_VecN   m_lvl_templates;
     LvlList_StdN4  m_lvl_Ws;
     LvlList_MatN4  m_lvl_Ws_eigen;

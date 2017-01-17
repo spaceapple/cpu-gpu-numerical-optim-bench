@@ -210,6 +210,15 @@ int main(int argc, char ** argv)
                 reg_dot_draw_color);
     }
 
+    // // Debug stuff
+    // for ( uint32_t smp_ind = 0; smp_ind< im_reg_solver.m_lvl_gridpts_eigen[0].rows(); ++smp_ind) {
+    //     ref_im_colorDisp.draw_point(
+    //             im_reg_solver.m_lvl_gridpts_eigen[0](smp_ind,0),
+    //             im_reg_solver.m_lvl_gridpts_eigen[0](smp_ind,1),
+    //             ref_dot_draw_color);
+    // }
+        
+
     cimg_library::CImgDisplay ref_im_cimgDisp(ref_im_colorDisp,"reference image");
     cimg_library::CImgDisplay reg_im_cimgDisp(reg_im_colorDisp,"registration image");
     std::vector<cimg_library::CImgDisplay> reg_template_cimgDisp;
