@@ -23,6 +23,7 @@
 // ****************************************************************************
 
 #undef Success //(X11 and Eigen both define the Success macro)
+
 #include <Eigen/Dense>
 
 #include <vector>
@@ -111,6 +112,7 @@ private: // private typedefs
     typedef std::vector<MatrixN4>                           LvlList_MatN4;
     typedef std::vector<MatrixN2>                           LvlList_MatN2;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
+    typedef std::vector<MatrixNN>                           LvlList_MatNN;
 // public:
 private:
     bool           m_is_init = false;
@@ -126,6 +128,14 @@ private:
     LvlList_MatN4  m_lvl_Ws_eigen;
     LvlList_MatN2  m_lvl_gridpts_eigen;
     LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
+    // solver containers
+    RowVecN        m_delta_vars;
+    LvlList_VecN   m_lvl_errs;
+    LvlList_MatNN  m_lvl_jacos;
+    LvlList_MatNN  m_lvl_JTJ;
+    LvlList_VecN   m_lvl_JTb;
+    RowVecN        m_mr_errs; // mr: multi resolution
+    MatrixNN       m_mr_jaco;
 private:
     // The following makes the copy contructor and the assignment operator
     // private to emulate a "non-copyable" class.

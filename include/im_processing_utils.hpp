@@ -40,6 +40,7 @@ public:
 public:
     inline IntPrec width() const { return m_width; }
     inline IntPrec height() const { return m_height; }
+    inline IntPrec size() const { return m_width * m_height; }
 private:
     IntPrec m_width = 0;
     IntPrec m_height = 0;
