@@ -19,10 +19,17 @@
 #define malloc_allowed(v)
 #endif
 
-#define EIGEN_DEFAULT_TO_ROW_MAJOR
+#define EIGEN_DEFAULT_TO_ROW_MAJOR // comment out this line to use ColMajor
 // ****************************************************************************
 
 #undef Success //(X11 and Eigen both define the Success macro)
+
+// match our own structure orders with Eigen internal's
+#ifdef EIGEN_DEFAULT_TO_ROW_MAJOR
+    #define MY_STORAGE_ORDER Eigen::RowMajor
+#else
+    #define MY_STORAGE_ORDER Eigen::ColMajor
+#endif
 
 #include <Eigen/Dense>
 
@@ -33,6 +40,7 @@
 #include "errCodes.h"
 
 #include "im_processing_utils.hpp"
+#include "optimization_utils.hpp"
 
 
 template <typename FloatPrec>
@@ -73,8 +81,8 @@ public:
     Common::ErrCode
     register_image(
             const cimg_library::CImg<unsigned char> & i_reg_image,
-            const std::vector<FloatPrec> &            i_reginit_pts,
-            std::vector<FloatPrec> &                  o_reg_pts);
+            uint32_t                                  i_nb_iterations,
+            std::vector<FloatPrec> &                  io_reg_pts);
 
     /*
     * get the level templates as images (mainly for debug purposes)
@@ -89,25 +97,25 @@ public:
     inline uint32_t nb_levels() const {return m_nb_levels;}
 
 public: // public typedefs
-    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, Eigen::Dynamic, MY_STORAGE_ORDER>
             MatrixNN;
-    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 2, Eigen::RowMajor>
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 2, MY_STORAGE_ORDER>
             MatrixN2;
-    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 4, Eigen::RowMajor>
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 4, MY_STORAGE_ORDER>
             MatrixN4;
-    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 6, Eigen::RowMajor>
+    typedef Eigen::Matrix<FloatPrec, Eigen::Dynamic, 6, MY_STORAGE_ORDER>
             MatrixN6;
-    typedef Eigen::Matrix<FloatPrec, 1, Eigen::Dynamic, Eigen::RowMajor>
-            RowVecN;
-    typedef Eigen::Matrix<FloatPrec, 1, 6, Eigen::RowMajor>
-            RowVec6;
-    typedef Eigen::Matrix<FloatPrec, 4, 2, Eigen::RowMajor>
+    typedef Eigen::Matrix<FloatPrec, 1, Eigen::Dynamic, MY_STORAGE_ORDER>
+            VecN;
+    typedef Eigen::Matrix<FloatPrec, 1, 6, MY_STORAGE_ORDER>
+            Vec6;
+    typedef Eigen::Matrix<FloatPrec, 4, 2, MY_STORAGE_ORDER>
             Matrix42;
 private: // private typedefs
     typedef Common::ImDim<uint32_t>                         ImDim;
     typedef std::vector<ImDim>                              LvlList_ImDim;
     typedef std::vector<FloatPrec>                          LvlList_Ratio;
-    typedef std::vector<RowVecN>                            LvlList_VecN;
+    typedef std::vector<VecN>                               LvlList_VecN;
     typedef std::vector<std::vector<FloatPrec> >            LvlList_StdN4;
     typedef std::vector<MatrixN4>                           LvlList_MatN4;
     typedef std::vector<MatrixN2>                           LvlList_MatN2;
@@ -129,18 +137,59 @@ private:
     LvlList_MatN2  m_lvl_gridpts_eigen;
     LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
     // solver containers
-    RowVecN        m_delta_vars;
+    VecN           m_delta_vars;
     LvlList_VecN   m_lvl_errs;
     LvlList_MatNN  m_lvl_jacos;
-    LvlList_MatNN  m_lvl_JTJ;
-    LvlList_VecN   m_lvl_JTb;
-    RowVecN        m_mr_errs; // mr: multi resolution
+    LvlList_MatNN  m_lvl_jTj;
+    LvlList_VecN   m_lvl_jTb;
+    VecN           m_mr_errs; // mr: multi resolution
     MatrixNN       m_mr_jaco;
+    MatrixNN       m_mr_jTj;
+    VecN           m_mr_jTb;
+    VecN           m_curr_pts;
 private:
     // The following makes the copy contructor and the assignment operator
     // private to emulate a "non-copyable" class.
     DenseImageRegistrationSolver(DenseImageRegistrationSolver const &);
     DenseImageRegistrationSolver & operator = (DenseImageRegistrationSolver const &);
+private:
+    /*
+    * compute multi-resolution pixel error vector for a given configuration of
+    * points
+    */
+    void
+    compute_multires_pix_error(
+            const VecN & i_pts,
+            VecN &       o_mr_pix_err);
+
+    /*
+    * compute pixel error vector for a given configuration of
+    * points for a given resoltion level
+    */
+    void
+    compute_lvl_pix_error(
+            const VecN & i_pts,
+            uint32_t     i_lvl,
+            VecN &       o_lvl_pix_err);
+
+    /*
+    * compute multi-resolution pixel jacobian matrix for a given configuration of
+    * points
+    */
+    void
+    compute_multires_pix_jacobian(
+            const VecN & i_pts,
+            MatrixNN &   o_mr_pix_err);
+
+    /*
+    * compute pixel jacobian matrix for a given configuration of
+    * points for a given resoltion level
+    */
+    void
+    compute_lvl_pix_jacobian(
+            const VecN & i_pts,
+            uint32_t     i_lvl,
+            MatrixNN &   o_mr_pix_err);
 };
 
 #include "dense_im_reg_cpu.inl.hpp"

@@ -46,6 +46,15 @@ int main(int argc, char ** argv)
 {
     std::cout << "dense image registration benchmark (CPU) ..." << "\n" ;
 
+    //////////////////////////// ALGO PARAMETERS //////////////////////////////
+    const uint32_t template_width = 200;
+    const uint32_t template_height = 300;
+    const uint32_t nb_res_levels = 3;
+    const FLOATPREC lvl_resz_ratio = 0.5;
+    const uint32_t register_nb_iterations = 5;
+    ///////////////////////////////////////////////////////////////////////////
+
+
     DenseImageRegistrationSolver<FLOATPREC> im_reg_solver;
 
     if ((argc-1) != nb_expected_args) {
@@ -142,11 +151,6 @@ int main(int argc, char ** argv)
         std::cout << "\n";
     }
 
-    const uint32_t template_width = 200;
-    const uint32_t template_height = 300;
-    const uint32_t nb_res_levels = 3;
-    const FLOATPREC lvl_resz_ratio = 0.5;
-
     curr_errCode = im_reg_solver.init(
             template_width,
             template_height,
@@ -165,11 +169,10 @@ int main(int argc, char ** argv)
         exit(-1);
     }
 
-
-    std::vector<FLOATPREC> reg_pts;
+    std::vector<FLOATPREC> reg_pts(reginit_pts);
     curr_errCode = im_reg_solver.register_image(
             reg_im_gray,
-            reginit_pts,
+            register_nb_iterations,
             reg_pts);
     if (curr_errCode != Common::NoError) {
         std::cerr << "Error in image registration (error " << curr_errCode << ")." << ".\n";
