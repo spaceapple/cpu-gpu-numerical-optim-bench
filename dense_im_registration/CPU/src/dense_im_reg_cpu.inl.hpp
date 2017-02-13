@@ -143,13 +143,18 @@ DenseImageRegistrationSolver<FloatPrec>::set_template(
     m_lvl_jacos.resize(m_nb_levels);
     m_lvl_jTj.resize(m_nb_levels);
     m_lvl_jTb.resize(m_nb_levels);
+    m_lvl_err_start_inds.resize(m_nb_levels);
+    m_lvl_err_size.resize(m_nb_levels);
     for (uint32_t i_lvl = 0; i_lvl<m_nb_levels; ++i_lvl)
     {
         const uint32_t nb_lvl_err_comp = m_lvl_templdims[i_lvl].size();
+        m_lvl_err_start_inds[i_lvl] = nb_mr_err_comp;
+        m_lvl_err_size[i_lvl] = nb_lvl_err_comp;
         m_lvl_errs[i_lvl].resize(nb_lvl_err_comp);
         m_lvl_jacos[i_lvl].resize(nb_lvl_err_comp, nb_vars);
         m_lvl_jTj[i_lvl].resize(nb_vars, nb_vars);
         m_lvl_jTb[i_lvl].resize(nb_vars);
+
         nb_mr_err_comp += nb_lvl_err_comp;
     }
     m_mr_errs.resize(nb_mr_err_comp);
@@ -241,15 +246,25 @@ DenseImageRegistrationSolver<FloatPrec>::compute_multires_pix_error(
             const VecN & i_pts,
             VecN &       o_mr_pix_err)
 {
+
+    typedef typename Eigen::Map<VecN> VecN_Map;
+
+    for (uint32_t i_lvl = 0; i_lvl<nb_levels; ++i_lvl)
+    {
+        VecN_Map lvl_pix_err(
+                &(m_mr_errs[m_lvl_err_start_inds[i_lvl]], m_lvl_err_size[i_lvl]);
+        compute_lvl_pix_error(i_pts, i_lvl, lvl_pix_err);
+    }
 }
 
 
 template <typename FloatPrec>
+template <typename OVecN>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_lvl_pix_error(
             const VecN & i_pts,
-            uint32_t        i_lvl,
-            VecN &       o_mr_pix_err)
+            uint32_t     i_lvl,
+            OVecN &      o_lvl_pix_err)
 {
 }
 
@@ -258,17 +273,18 @@ template <typename FloatPrec>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_multires_pix_jacobian(
             const VecN & i_pts,
-            MatrixNN &   o_mr_pix_err)
+            MatrixNN &   o_mr_pix_jaco)
 {
 }
 
 
 template <typename FloatPrec>
+template <typename OMatNN>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_lvl_pix_jacobian(
-            const VecN & i_pts,
-            uint32_t     i_lvl,
-            MatrixNN &   o_mr_pix_err)
+            const VecN &  i_pts,
+            uint32_t      i_lvl,
+            OMatNN &      o_lvl_pix_jaco)
 {
 }
 

@@ -114,6 +114,8 @@ public: // public typedefs
 private: // private typedefs
     typedef Common::ImDim<uint32_t>                         ImDim;
     typedef std::vector<ImDim>                              LvlList_ImDim;
+    typedef std::vector<uint32_t>                           LvlList_Ind;
+    typedef std::vector<uint32_t>                           LvlList_Size;
     typedef std::vector<FloatPrec>                          LvlList_Ratio;
     typedef std::vector<VecN>                               LvlList_VecN;
     typedef std::vector<std::vector<FloatPrec> >            LvlList_StdN4;
@@ -136,6 +138,8 @@ private:
     LvlList_MatN4  m_lvl_Ws_eigen;
     LvlList_MatN2  m_lvl_gridpts_eigen;
     LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
+    LvlList_Ind    m_lvl_err_start_inds;
+    LvlList_Size   m_lvl_err_size;
     // solver containers
     VecN           m_delta_vars;
     LvlList_VecN   m_lvl_errs;
@@ -166,11 +170,12 @@ private:
     * compute pixel error vector for a given configuration of
     * points for a given resoltion level
     */
+    template <typename OVecN>
     void
     compute_lvl_pix_error(
-            const VecN & i_pts,
-            uint32_t     i_lvl,
-            VecN &       o_lvl_pix_err);
+            const VecN &                        i_pts,
+            uint32_t                            i_lvl,
+            typename Eigen::MatrixBase<OVecN> & o_lvl_pix_err);
 
     /*
     * compute multi-resolution pixel jacobian matrix for a given configuration of
@@ -185,11 +190,12 @@ private:
     * compute pixel jacobian matrix for a given configuration of
     * points for a given resoltion level
     */
+    template <typename OMatNN>
     void
     compute_lvl_pix_jacobian(
             const VecN & i_pts,
             uint32_t     i_lvl,
-            MatrixNN &   o_mr_pix_err);
+            OMatNN &     o_lvl_pix_jaco)
 };
 
 #include "dense_im_reg_cpu.inl.hpp"

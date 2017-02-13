@@ -1,0 +1,9 @@
+# quad annotation
+# upper left corner
+240.0 185.0
+# upper right corner
+486.0 193.0
+# lower right corner
+447.0 338.0
+# lower left corner
+209.0 334.0
