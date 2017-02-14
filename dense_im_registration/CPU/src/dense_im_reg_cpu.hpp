@@ -125,32 +125,35 @@ private: // private typedefs
     typedef std::vector<MatrixNN>                           LvlList_MatNN;
 // public:
 private:
-    bool           m_is_init = false;
-    bool           m_template_is_set = false;
-    uint32_t       m_nb_levels = 3;
-    FloatPrec      m_lvl_resz_ratio = 0.5;
-    FloatPrec      m_normz_factor = 1./255.;
-    ImDim          m_ref_imdim;
-    LvlList_Ratio  m_lvl_abs_resz_ratio;
-    LvlList_ImDim  m_lvl_templdims;
-    LvlList_VecN   m_lvl_templates;
-    LvlList_StdN4  m_lvl_Ws;
-    LvlList_MatN4  m_lvl_Ws_eigen;
-    LvlList_MatN2  m_lvl_gridpts_eigen;
-    LvlList_Images m_reg_im_pyr; // registration image resolution pyramid
-    LvlList_Ind    m_lvl_err_start_inds;
-    LvlList_Size   m_lvl_err_size;
+    bool             m_is_init = false;
+    bool             m_template_is_set = false;
+    uint32_t         m_nb_levels = 3;
+    FloatPrec        m_lvl_resz_ratio = 0.5;
+    FloatPrec        m_normz_factor = 1./255.;
+    ImDim            m_ref_imdim;
+    LvlList_Ratio    m_lvl_abs_resz_ratio;
+    LvlList_ImDim    m_lvl_templdims;
+    LvlList_VecN     m_lvl_templates;
+    LvlList_StdN4    m_lvl_Ws;
+    LvlList_MatN4    m_lvl_Ws_eigen;
+    LvlList_MatN2    m_lvl_gridpts_eigen;
+    LvlList_Images   m_reg_im_pyr; // registration image resolution pyramid
+    VecN             m_mr_template;
+    LvlList_Ind      m_lvl_err_start_inds;
+    LvlList_Size     m_lvl_err_size;
     // solver containers
-    VecN           m_delta_vars;
-    LvlList_VecN   m_lvl_errs;
-    LvlList_MatNN  m_lvl_jacos;
-    LvlList_MatNN  m_lvl_jTj;
-    LvlList_VecN   m_lvl_jTb;
-    VecN           m_mr_errs; // mr: multi resolution
-    MatrixNN       m_mr_jaco;
-    MatrixNN       m_mr_jTj;
-    VecN           m_mr_jTb;
-    VecN           m_curr_pts;
+    VecN             m_delta_vars;
+    LvlList_VecN     m_lvl_errs;
+    LvlList_MatNN    m_lvl_jacos;
+    LvlList_MatNN    m_lvl_jTj;
+    LvlList_VecN     m_lvl_jTb;
+    VecN             m_mr_errs; // mr: multi resolution
+    MatrixNN         m_mr_jaco;
+    MatrixNN         m_mr_jTj;
+    VecN             m_mr_jTb;
+    VecN             m_curr_pts;
+    LvlList_Matrix42 m_lvl_annot_pts;
+    ImagePyr         m_curr_img_pyr;
 private:
     // The following makes the copy contructor and the assignment operator
     // private to emulate a "non-copyable" class.
@@ -163,19 +166,19 @@ private:
     */
     void
     compute_multires_pix_error(
-            const VecN & i_pts,
-            VecN &       o_mr_pix_err);
+            const Matrix42 & i_pts,
+            VecN &           o_mr_pix_err);
 
     /*
     * compute pixel error vector for a given configuration of
     * points for a given resoltion level
     */
-    template <typename OVecN>
+    template <typename OVecNType>
     void
     compute_lvl_pix_error(
-            const VecN &                        i_pts,
-            uint32_t                            i_lvl,
-            typename Eigen::MatrixBase<OVecN> & o_lvl_pix_err);
+            const VecN & i_pts,
+            uint32_t     i_lvl,
+            OVecNType      & o_lvl_pix_err);
 
     /*
     * compute multi-resolution pixel jacobian matrix for a given configuration of
@@ -184,7 +187,7 @@ private:
     void
     compute_multires_pix_jacobian(
             const VecN & i_pts,
-            MatrixNN &   o_mr_pix_err);
+            MatN &       o_mr_pix_err);
 
     /*
     * compute pixel jacobian matrix for a given configuration of
@@ -195,7 +198,7 @@ private:
     compute_lvl_pix_jacobian(
             const VecN & i_pts,
             uint32_t     i_lvl,
-            OMatNN &     o_lvl_pix_jaco)
+            OMatNNType & o_lvl_pix_jaco);
 };
 
 #include "dense_im_reg_cpu.inl.hpp"
