@@ -137,7 +137,6 @@ private:
     LvlList_StdN4    m_lvl_Ws;
     LvlList_MatN4    m_lvl_Ws_eigen;
     LvlList_MatN2    m_lvl_gridpts_eigen;
-    LvlList_Images   m_reg_im_pyr; // registration image resolution pyramid
     VecN             m_mr_template;
     LvlList_Ind      m_lvl_err_start_inds;
     LvlList_Size     m_lvl_err_size;
@@ -153,7 +152,7 @@ private:
     VecN             m_mr_jTb;
     VecN             m_curr_pts;
     LvlList_Matrix42 m_lvl_annot_pts;
-    ImagePyr         m_curr_img_pyr;
+    Common::ImagePyr m_curr_img_pyr;
 private:
     // The following makes the copy contructor and the assignment operator
     // private to emulate a "non-copyable" class.

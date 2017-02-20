@@ -114,7 +114,8 @@ DenseImageRegistrationSolver<FloatPrec>::set_template(
 
     cimg_library::CImg<FloatPrec> ref_image_float(i_ref_image);
     ref_image_float *= m_normz_factor;
-    cimg_library::CImg<FloatPrec> lvl_image_float;
+    // cimg_library::CImg<FloatPrec> lvl_image_float;
+    m_curr_img_pyr.init(ref_image_float);
 
     // initialize container member variables
     const uint32_t nb_vars = 4 * 2; // 4 corner points of 2 coordinates each
@@ -137,11 +138,11 @@ DenseImageRegistrationSolver<FloatPrec>::set_template(
                 m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.width();
         const uint32_t lvl_ref_image_height =
                 m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.height();
-        lvl_image_float = ref_image_float.get_resize(
-                lvl_ref_image_width, lvl_ref_image_height);
+        // lvl_image_float = ref_image_float.get_resize(
+        //         lvl_ref_image_width, lvl_ref_image_height);
 
         warp_grid(
-                lvl_image_float,
+                m_curr_img_pyr[i_lvl],
                 m_lvl_gridpts_eigen[i_lvl],
                 m_lvl_templates[i_lvl]);
 
