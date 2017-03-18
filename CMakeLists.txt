@@ -26,7 +26,7 @@ elseif(MINGW OR UNIX)
     set(DXYZ_DEBUG_OPTIM_FLAGS "-O0 -ggdb")
     set(DXYZ_COMPILE_FLAGS "-std=c++11 -Werror -Wall -Wno-sign-compare \
     -Wno-unused-local-typedefs -Wno-unknown-pragmas -fvisibility=hidden \
-    -fvisibility-inlines-hidden -Wno-unknown-warning-option")
+    -fvisibility-inlines-hidden -Wno-unknown-warning-option -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS_RELEASE ${DXYZ_RELEASE_OPTIM_FLAGS} CACHE STRING
         "Tune the release flags" FORCE)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${DXYZ_RELWITHDEBINFO_OPTIM_FLAGS} CACHE STRING
