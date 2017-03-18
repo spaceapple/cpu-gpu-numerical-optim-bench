@@ -7,7 +7,7 @@
 */
 
 /*
-* Template member functions definition for dense_im_reg_cpu.inl.hpp
+* Template member functions definition for dense_im_reg_cpu.hpp
 */
 
 template <typename FloatPrec>
@@ -115,7 +115,7 @@ DenseImageRegistrationSolver<FloatPrec>::set_template(
     cimg_library::CImg<FloatPrec> ref_image_float(i_ref_image);
     ref_image_float *= m_normz_factor;
     // cimg_library::CImg<FloatPrec> lvl_image_float;
-    m_curr_img_pyr.init(ref_image_float);
+    m_curr_img_pyr.init(ref_image_float, m_lvl_abs_resz_ratio);
 
     // initialize container member variables
     const uint32_t nb_vars = 4 * 2; // 4 corner points of 2 coordinates each
@@ -131,13 +131,12 @@ DenseImageRegistrationSolver<FloatPrec>::set_template(
     for (uint32_t i_lvl = 0; i_lvl<m_nb_levels; ++i_lvl)
     {
         m_lvl_annot_pts[i_lvl] = m_lvl_abs_resz_ratio[i_lvl] * annot_pts_eigen;
-
         m_lvl_gridpts_eigen[i_lvl] = m_lvl_Ws_eigen[i_lvl] * m_lvl_annot_pts[i_lvl];
 
-        const uint32_t lvl_ref_image_width =
-                m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.width();
-        const uint32_t lvl_ref_image_height =
-                m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.height();
+        // const uint32_t lvl_ref_image_width =
+        //         m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.width();
+        // const uint32_t lvl_ref_image_height =
+        //         m_lvl_abs_resz_ratio[i_lvl] * i_ref_image.height();
         // lvl_image_float = ref_image_float.get_resize(
         //         lvl_ref_image_width, lvl_ref_image_height);
 
@@ -222,21 +221,24 @@ DenseImageRegistrationSolver<FloatPrec>::register_image(
         return Common::TemplateNotSet;
     }
 
-    // generate level image
-    TODO
+    // generate image pyramid
+    m_curr_img_pyr.acq_image(i_reg_image);
 
     typedef typename Eigen::Map<VecN> VecN_Map;
+    typedef typename Eigen::Map<Matrix42> Mat42_Map;
     VecN_Map io_reg_pts_asVecN(&(io_reg_pts[0]), m_delta_vars.size());
-    m_curr_pts = io_reg_pts_eigen;
+    m_curr_pts = io_reg_pts_asVecN;
     Mat42_Map curr_pts_asMat42(&(m_curr_pts[0]), 4, 2);
 
     for (uint32_t i_i = 0; i_i< i_nb_iterations; ++i_i)
     {
         // compute error
-        compute_multires_pix_error(curr_pts_asMat42, m_mr_errs);
+        compute_multires_pix_error(
+                m_curr_img_pyr, curr_pts_asMat42, m_mr_errs);
 
         // compute error jacobian
-        compute_multires_pix_jacobian(m_curr_pts, m_mr_jaco);
+        compute_multires_pix_jacobian(
+                m_curr_img_pyr, m_curr_pts, m_mr_jaco);
 
         // optimization step
         Common::gauss_newton_descent_step(
@@ -248,7 +250,7 @@ DenseImageRegistrationSolver<FloatPrec>::register_image(
 
     }
 
-    io_reg_pts_eigen = m_delta_vars;
+    io_reg_pts_asVecN = m_curr_pts;
 
     return Common::NoError;
 }
@@ -257,19 +259,25 @@ DenseImageRegistrationSolver<FloatPrec>::register_image(
 template <typename FloatPrec>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_multires_pix_error(
-            const Matrix42 & i_pts,
-            VecN &           o_mr_pix_err)
+            const Common::ImagePyr<FloatPrec> & i_im_pyr,
+            const Matrix42 &                    i_pts,
+            VecN &                              o_mr_pix_err)
 {
+    typedef typename Eigen::Map<VecN> VecN_Map;
+
     for (uint32_t i_lvl = 0; i_lvl<m_nb_levels; ++i_lvl)
     {
-        m_lvl_annot_pts = m_lvl_abs_resz_ratio[i_lvl] * i_pts;
+        m_lvl_annot_pts[i_lvl] = m_lvl_abs_resz_ratio[i_lvl] * i_pts;
 
         m_lvl_gridpts_eigen[i_lvl] = m_lvl_Ws_eigen[i_lvl] * m_lvl_annot_pts[i_lvl];
 
+        VecN_Map o_lvl_pix_err_map(
+                &(o_mr_pix_err(m_lvl_err_start_inds[i_lvl])),
+                m_lvl_err_size[i_lvl]);
         warp_grid(
-                lvl_image_float,
+                i_im_pyr[i_lvl],
                 m_lvl_gridpts_eigen[i_lvl],
-                o_mr_pix_err.segment(,));
+                o_lvl_pix_err_map);
 
     }
     o_mr_pix_err -= m_mr_template;
@@ -280,9 +288,10 @@ template <typename FloatPrec>
 template <typename OVecNType>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_lvl_pix_error(
-            const VecN & i_pts,
-            uint32_t     i_lvl,
-            OVecNType &  o_lvl_pix_err)
+            const cimg_library::CImg<FloatPrec> & i_im_pyr,
+            const VecN &                          i_pts,
+            uint32_t                              i_lvl,
+            OVecNType &                           o_lvl_pix_err)
 {
 }
 
@@ -290,8 +299,9 @@ DenseImageRegistrationSolver<FloatPrec>::compute_lvl_pix_error(
 template <typename FloatPrec>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_multires_pix_jacobian(
-            const VecN & i_pts,
-            MatrixNN &   o_mr_pix_jaco)
+            const Common::ImagePyr<FloatPrec> & i_im_pyr,
+            const VecN &                        i_pts,
+            MatrixNN &                          o_mr_pix_jaco)
 {
 }
 
@@ -300,9 +310,10 @@ template <typename FloatPrec>
 template <typename OMatNNType>
 void
 DenseImageRegistrationSolver<FloatPrec>::compute_lvl_pix_jacobian(
-            const VecN &  i_pts,
-            uint32_t      i_lvl,
-            OMatNNType &  o_lvl_pix_jaco)
+            const cimg_library::CImg<FloatPrec> & i_im_pyr,
+            const VecN &                          i_pts,
+            uint32_t                              i_lvl,
+            OMatNNType &                          o_lvl_pix_jaco)
 {
 }
 

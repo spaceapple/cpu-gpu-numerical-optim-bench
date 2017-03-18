@@ -39,6 +39,7 @@
 
 #include "errCodes.h"
 
+#include "image_pyr.hpp"
 #include "im_processing_utils.hpp"
 #include "optimization_utils.hpp"
 
@@ -75,8 +76,8 @@ public:
             FloatPrec                                 i_normz_factor = 1./255.);
 
     /*
-    * register the recorded template (set with 'set_template' in the input
-    * image.
+    * register the recorded template (set with 'set_template' in the prpvided
+    * input image.
     */
     Common::ErrCode
     register_image(
@@ -123,6 +124,7 @@ private: // private typedefs
     typedef std::vector<MatrixN2>                           LvlList_MatN2;
     typedef std::vector<cimg_library::CImg<unsigned char> > LvlList_Images;
     typedef std::vector<MatrixNN>                           LvlList_MatNN;
+    typedef std::vector<Matrix42>                           LvlList_Matrix42;
 // public:
 private:
     bool             m_is_init = false;
@@ -141,18 +143,18 @@ private:
     LvlList_Ind      m_lvl_err_start_inds;
     LvlList_Size     m_lvl_err_size;
     // solver containers
-    VecN             m_delta_vars;
-    LvlList_VecN     m_lvl_errs;
-    LvlList_MatNN    m_lvl_jacos;
-    LvlList_MatNN    m_lvl_jTj;
-    LvlList_VecN     m_lvl_jTb;
-    VecN             m_mr_errs; // mr: multi resolution
-    MatrixNN         m_mr_jaco;
-    MatrixNN         m_mr_jTj;
-    VecN             m_mr_jTb;
-    VecN             m_curr_pts;
-    LvlList_Matrix42 m_lvl_annot_pts;
-    Common::ImagePyr m_curr_img_pyr;
+    VecN                        m_delta_vars;
+    LvlList_VecN                m_lvl_errs;
+    LvlList_MatNN               m_lvl_jacos;
+    LvlList_MatNN               m_lvl_jTj;
+    LvlList_VecN                m_lvl_jTb;
+    VecN                        m_mr_errs; // mr: multi resolution
+    MatrixNN                    m_mr_jaco;
+    MatrixNN                    m_mr_jTj;
+    VecN                        m_mr_jTb;
+    VecN                        m_curr_pts;
+    LvlList_Matrix42            m_lvl_annot_pts;
+    Common::ImagePyr<FloatPrec> m_curr_img_pyr;
 private:
     // The following makes the copy contructor and the assignment operator
     // private to emulate a "non-copyable" class.
@@ -165,8 +167,9 @@ private:
     */
     void
     compute_multires_pix_error(
-            const Matrix42 & i_pts,
-            VecN &           o_mr_pix_err);
+            const Common::ImagePyr<FloatPrec> & i_im_pyr,
+            const Matrix42 &                    i_pts,
+            VecN &                              o_mr_pix_err);
 
     /*
     * compute pixel error vector for a given configuration of
@@ -175,9 +178,10 @@ private:
     template <typename OVecNType>
     void
     compute_lvl_pix_error(
-            const VecN & i_pts,
-            uint32_t     i_lvl,
-            OVecNType      & o_lvl_pix_err);
+            const cimg_library::CImg<FloatPrec> & i_im_pyr,
+            const VecN &                          i_pts,
+            uint32_t                              i_lvl,
+            OVecNType &                           o_lvl_pix_err);
 
     /*
     * compute multi-resolution pixel jacobian matrix for a given configuration of
@@ -185,19 +189,21 @@ private:
     */
     void
     compute_multires_pix_jacobian(
-            const VecN & i_pts,
-            MatN &       o_mr_pix_err);
+            const Common::ImagePyr<FloatPrec> & i_im_pyr,
+            const VecN &                        i_pts,
+            MatrixNN &                          o_mr_pix_jaco);
 
     /*
     * compute pixel jacobian matrix for a given configuration of
     * points for a given resoltion level
     */
-    template <typename OMatNN>
+    template <typename OMatNNType>
     void
     compute_lvl_pix_jacobian(
-            const VecN & i_pts,
-            uint32_t     i_lvl,
-            OMatNNType & o_lvl_pix_jaco);
+            const cimg_library::CImg<FloatPrec> & i_im_pyr,
+            const VecN &                          i_pts,
+            uint32_t                              i_lvl,
+            OMatNNType &                          o_lvl_pix_jaco);
 };
 
 #include "dense_im_reg_cpu.inl.hpp"
