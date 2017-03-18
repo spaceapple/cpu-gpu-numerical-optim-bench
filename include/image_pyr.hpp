@@ -111,9 +111,9 @@ ImagePyr<FloatPrec>::init(
     {
         const uint32_t lvl_width = i_input_im_sz.width() * i_abs_rsz_ratios[i_lvl];
         const uint32_t lvl_height = i_input_im_sz.height() * i_abs_rsz_ratios[i_lvl];
-        m_lvl_images.resize(lvl_width, lvl_height);
-        m_lvl_xgrad_ims.resize(lvl_width, lvl_height);
-        m_lvl_ygrad_ims.resize(lvl_width, lvl_height);
+        m_lvl_images[i_lvl].resize(lvl_width, lvl_height);
+        m_lvl_xgrad_ims[i_lvl].resize(lvl_width, lvl_height);
+        m_lvl_ygrad_ims[i_lvl].resize(lvl_width, lvl_height);
     }
     return NoError;
 }
